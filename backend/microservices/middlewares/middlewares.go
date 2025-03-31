@@ -14,3 +14,9 @@ func GetMiddleware(db *db.DB) func(next http.Handler) http.Handler {
 		})
 	}
 }
+
+func GetContext(ctx context.Context) *db.DB {
+	db := ctx.Value("db").(*db.DB)
+
+	return db
+}
