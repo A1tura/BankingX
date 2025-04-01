@@ -21,12 +21,12 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		errors := error.NewError(true, w)
 		var body types.SignUpRequest
-        // TODO: Implement error validation
+		// TODO: Implement error validation
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			errors.ThrowError()
 			return
 		}
-        defer r.Body.Close()
+		defer r.Body.Close()
 
 		passwordLeaked, passwordLeakedTimes := utils.PasswordLeaked(body.Password)
 		if passwordLeaked {
@@ -40,11 +40,11 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			errors.NewError("Invalid email address")
 		}
 
-		successful, emailInUse := dal.EmailInUse(db, body.Email)
+		emailInUse, err := dal.EmailInUse(db, body.Email)
 
-		if emailInUse && successful {
+		if emailInUse && err == nil {
 			errors.NewError("Email already in use")
-		} else if !successful {
+		} else if err != nil {
 			errors.ThrowInternalError()
 			return
 		}
@@ -53,11 +53,11 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			errors.NewError("Username must be at least 5 characters long")
 		}
 
-		successful, usernameInUse := dal.UsernameInUse(db, body.Username)
+		usernameInUse, err := dal.UsernameInUse(db, body.Username)
 
-		if usernameInUse && successful {
+		if usernameInUse && err == nil {
 			errors.NewError("Username already in use")
-		} else if !successful {
+		} else if err != nil {
 			errors.ThrowInternalError()
 			return
 		}
@@ -75,8 +75,8 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			successful, id := dal.CreateUser(db, body.Username, passwordHash, body.Email)
-			if !successful {
+			id, err := dal.CreateUser(db, body.Username, passwordHash, body.Email)
+			if err != nil {
 				errors.ThrowInternalError()
 				return
 			}
