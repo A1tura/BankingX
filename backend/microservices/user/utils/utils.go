@@ -48,7 +48,7 @@ func PasswordLeaked(password string) (bool, int) {
 }
 
 func VerifyPasswordStrength(password string) bool {
-	if len(password) < 8 && len(password) > 128 {
+	if len(password) < 8 || len(password) > 128 {
 		return false
 	}
 
