@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io"
 	"middlewares"
-	_ "middlewares"
 	"net/http"
 	"os"
 	"strconv"
@@ -23,14 +22,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		errors := error.NewError(true, w)
 		var body types.SignUpRequest
-		bodyBytes, err := io.ReadAll(r.Body)
-		if err != nil {
-			errors.ThrowInternalError()
-			return
-		}
-
-		defer r.Body.Close()
-		if err := json.Unmarshal(bodyBytes, &body); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			errors.ThrowError()
 			return
 		}
