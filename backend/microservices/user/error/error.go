@@ -28,6 +28,12 @@ func (e *Error) ErrorsExist() bool {
 	return len(e.Errors) > 0
 }
 
+func (e *Error) ThrowInternalError() {
+	e.IsClientError = false
+	e.Errors = make([]string, 0)
+	e.ThrowError()
+}
+
 func (e *Error) ThrowError() {
 	if e.IsClientError {
 		e.Writer.WriteHeader(400)
