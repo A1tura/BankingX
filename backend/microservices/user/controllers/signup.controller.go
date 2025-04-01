@@ -25,6 +25,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			errors.ThrowError()
 			return
 		}
+        defer r.Body.Close()
 
 		passwordLeaked, passwordLeakedTimes := utils.PasswordLeaked(body.Password)
 		if passwordLeaked {
