@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"crypto/sha1"
+	"crypto"
 	"encoding/hex"
 	"io"
 	"net/http"
@@ -15,8 +15,18 @@ func IsValidEmail(email string) bool {
 	return re.MatchString(email)
 }
 
+func HashPassword(password string) (string, error) {
+	hasher := crypto.SHA512.New()
+	if _, err := hasher.Write([]byte(password)); err != nil {
+		return "", err
+	}
+
+	passwordHash := hex.EncodeToString(hasher.Sum(nil))
+	return passwordHash, nil
+}
+
 func PasswordLeaked(password string) (bool, int) {
-	hasher := sha1.New()
+	hasher := crypto.SHA1.New()
 	hasher.Write([]byte(password))
 	hash := hex.EncodeToString(hasher.Sum(nil))
 
@@ -34,7 +44,7 @@ func PasswordLeaked(password string) (bool, int) {
 	defer req.Body.Close()
 
 	for _, line := range strings.Split(string(res), "\n") {
-        parts := strings.Split(strings.TrimSpace(line), ":")
+		parts := strings.Split(strings.TrimSpace(line), ":")
 		if parts[0] == suffix {
 			leaked, err := strconv.Atoi(parts[1])
 			if err != nil {

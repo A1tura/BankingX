@@ -1,8 +1,6 @@
 package controllers
 
 import (
-	"crypto/sha512"
-	"encoding/hex"
 	"encoding/json"
 	"middlewares"
 	"net/http"
@@ -69,13 +67,11 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			var response types.SignUpResponse
 			response.Successful = true
 
-			hasher := sha512.New()
-			if _, err := hasher.Write([]byte(body.Password)); err != nil {
+			passwordHash, err := utils.HashPassword(body.Password)
+			if err != nil {
 				errors.ThrowInternalError()
 				return
 			}
-
-			passwordHash := hex.EncodeToString(hasher.Sum(nil))
 
 			successful, id := dal.CreateUser(db, body.Username, passwordHash, body.Email)
 			if !successful {
