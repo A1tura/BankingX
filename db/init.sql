@@ -2,6 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username text UNIQUE NOT NULL,
     email text UNIQUE NOT NULL,
+    email_verificated bool DEFAULT false,
     password_hash text NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
@@ -38,3 +39,5 @@ CREATE TABLE accounts (
     status TEXT CHECK (status IN ('active', 'frozen', 'closed')) DEFAULT 'active',
     created_at TIMESTAMP DEFAULT now()
 );
+
+INSERT INTO users (username, email, password_hash) VALUES ('test', 'test@test.com', 'test');
