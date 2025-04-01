@@ -21,6 +21,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Content-Type", "application/json")
 		errors := error.NewError(true, w)
 		var body types.SignUpRequest
+        // TODO: Implement error validation
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			errors.ThrowError()
 			return
