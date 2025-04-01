@@ -35,12 +35,13 @@ func UsernameInUse(db *db.DB, email string) (bool, bool) {
 	return true, usernameInUse
 }
 
-func CreateUser(db *db.DB, username, password_hash, email string) bool {
-	_, err := db.Exec(`INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)`, username, email, password_hash)
+func CreateUser(db *db.DB, username, password_hash, email string) (bool, int) {
+	var id int
+	row := db.QueryRow(`INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id;`, username, email, password_hash)
 
-	if err != nil {
-		return false
+	if err := row.Scan(&id); err != nil {
+		return false, 0
 	}
 
-	return true
+	return true, id
 }
