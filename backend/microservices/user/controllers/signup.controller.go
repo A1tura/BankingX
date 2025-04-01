@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"io"
 	"middlewares"
 	"net/http"
 	"os"
