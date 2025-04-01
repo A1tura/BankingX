@@ -3,7 +3,6 @@ package utils
 import (
 	"crypto/sha1"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"net/http"
 	"regexp"
@@ -37,7 +36,6 @@ func PasswordLeaked(password string) (bool, int) {
 	for _, line := range strings.Split(string(res), "\n") {
         parts := strings.Split(strings.TrimSpace(line), ":")
 		if parts[0] == suffix {
-            fmt.Println(parts)
 			leaked, err := strconv.Atoi(parts[1])
 			if err != nil {
 				return true, 0
