@@ -83,7 +83,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			}
 
 			emailVerificationToken := utils.GenerateEmailVerificationToken(body.Email)
-			if err := dal.CreateEmailVerificationToken(services.DB, id, body.Email); err != nil {
+			if err := dal.CreateEmailVerificationToken(services.DB, id, emailVerificationToken); err != nil {
 				errors.ThrowInternalError()
 				return
 			}
