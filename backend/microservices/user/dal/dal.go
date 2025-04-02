@@ -68,3 +68,13 @@ func GetUserId(db *db.DB, email string) (int, error) {
 
 	return id, nil
 }
+
+func CreateEmailVerificationToken(db *db.DB, userId int, token string) error {
+	row := db.QueryRow(`INSERT INTO email_tokens (user_id, token) VALUES ($1, $2)`, userId, token)
+
+	if row.Err() != nil {
+		return row.Err()
+	}
+
+	return nil
+}

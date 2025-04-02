@@ -2,12 +2,16 @@ package utils
 
 import (
 	"crypto"
+	"crypto/hmac"
+	"crypto/sha512"
 	"encoding/hex"
 	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func IsValidEmail(email string) bool {
@@ -63,4 +67,14 @@ func VerifyPasswordStrength(password string) bool {
 	}
 
 	return true
+}
+
+func GenerateEmailVerificationToken(email string) string {
+	timestamp := time.Now().Unix()
+	data := email + ":" + string(timestamp)
+
+	h := hmac.New(sha512.New, []byte(os.Getenv("EMAIL_VERIF_SECRET")))
+	h.Write([]byte(data))
+
+	return hex.EncodeToString(h.Sum(nil))
 }

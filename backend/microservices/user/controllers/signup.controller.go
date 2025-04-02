@@ -11,6 +11,7 @@ import (
 
 	"user/dal"
 	"user/error"
+	"user/mql"
 	"user/types"
 	"user/utils"
 )
@@ -77,6 +78,17 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 			id, err := dal.CreateUser(services.DB, body.Username, passwordHash, body.Email)
 			if err != nil {
+				errors.ThrowInternalError()
+				return
+			}
+
+			emailVerificationToken := utils.GenerateEmailVerificationToken(body.Email)
+			if err := dal.CreateEmailVerificationToken(services.DB, id, body.Email); err != nil {
+				errors.ThrowInternalError()
+				return
+			}
+
+			if err := mql.SendEmailConfirmationEmail(services.Rabbitmq, os.Getenv("DOMAIN")+"/" + "/emailConfirmation?token=" +emailVerificationToken, body.Email); err != nil {
 				errors.ThrowInternalError()
 				return
 			}
