@@ -11,6 +11,17 @@ services:
     networks:
       - bank
 
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:latest
+    environment:
+      - RABBITMQ_DEFAULT_PASS=admin
+      - RABBITMQ_DEFAULT_USER=admin
+    ports:
+      - "5672:5672"
+    networks:
+      - bank
+
 networks:
   bank:
     driver: bridge
