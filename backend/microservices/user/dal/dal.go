@@ -1,6 +1,7 @@
 package dal
 
 import (
+	"database/sql"
 	"db"
 )
 
@@ -77,4 +78,28 @@ func CreateEmailVerificationToken(db *db.DB, userId int, token string) error {
 	}
 
 	return nil
+}
+
+func VerifyToken(db *db.DB, token string) (bool, error) {
+	var userId int
+
+	row := db.QueryRow(`SELECT user_id FROM email_tokens WHERE token=$1`, token)
+
+	if err := row.Scan(&userId); err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		} else {
+			return false, err
+		}
+	}
+
+	row = db.QueryRow(`UPDATE users SET email_verificated = true WHERE id = $1`, userId)
+
+	if row.Err() != nil {
+		return false, row.Err()
+	}
+
+	row = db.QueryRow(`DELETE FROM email_tokens WHERE user_id=$1`, userId)
+
+	return true, nil
 }
