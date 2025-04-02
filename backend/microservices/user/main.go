@@ -26,5 +26,7 @@ func main() {
 	http.Handle("/signup", ctxMiddleware(http.HandlerFunc(controllers.SignUp)))
 	http.Handle("/signin", ctxMiddleware(http.HandlerFunc(controllers.SignIn)))
 
-	http.ListenAndServe(":8080", nil)
+    if err := http.ListenAndServe(":8080", nil); err != nil {
+        log.Fatal(err)
+    }
 }
