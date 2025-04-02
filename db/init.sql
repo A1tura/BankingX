@@ -40,4 +40,11 @@ CREATE TABLE accounts (
     created_at TIMESTAMP DEFAULT now()
 );
 
+CREATE TABLE email_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id SERIAL REFERENCES users(id),
+    token text NOT NULL,
+    created_at TIMESTAMP DEFAULT now()
+);
+
 INSERT INTO users (username, email, password_hash) VALUES ('test', 'test@test.com', 'test');
