@@ -16,7 +16,7 @@ import (
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		w.Header().Add("Content-Type", "application/json")
-		db := middlewares.GetContext(r.Context())
+		services := middlewares.GetContext(r.Context())
 		errors := error.NewError(true, w)
 
 		var body types.SignInRequest
@@ -34,7 +34,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		userExist, err := dal.UserExist(db, body.Email, passwordHash)
+		userExist, err := dal.UserExist(services.DB, body.Email, passwordHash)
 		// TODO: Implement error validation
 		if err != nil {
 			errors.ThrowInternalError()
@@ -47,7 +47,7 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		userId, err := dal.GetUserId(db, body.Email)
+		userId, err := dal.GetUserId(services.DB, body.Email)
 		// TODO: Implement error validation
 		if err != nil {
 			errors.ThrowInternalError()

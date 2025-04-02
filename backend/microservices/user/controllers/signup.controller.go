@@ -17,7 +17,7 @@ import (
 
 func SignUp(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-		db := middlewares.GetContext(r.Context())
+		services := middlewares.GetContext(r.Context())
 		w.Header().Add("Content-Type", "application/json")
 		errors := error.NewError(true, w)
 		var body types.SignUpRequest
@@ -40,7 +40,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			errors.NewError("Invalid email address")
 		}
 
-		emailInUse, err := dal.EmailInUse(db, body.Email)
+		emailInUse, err := dal.EmailInUse(services.DB, body.Email)
 
 		if emailInUse && err == nil {
 			errors.NewError("Email already in use")
@@ -53,7 +53,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			errors.NewError("Username must be at least 5 characters long")
 		}
 
-		usernameInUse, err := dal.UsernameInUse(db, body.Username)
+		usernameInUse, err := dal.UsernameInUse(services.DB, body.Username)
 
 		if usernameInUse && err == nil {
 			errors.NewError("Username already in use")
@@ -75,7 +75,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			id, err := dal.CreateUser(db, body.Username, passwordHash, body.Email)
+			id, err := dal.CreateUser(services.DB, body.Username, passwordHash, body.Email)
 			if err != nil {
 				errors.ThrowInternalError()
 				return
