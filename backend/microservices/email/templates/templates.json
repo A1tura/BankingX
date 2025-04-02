@@ -1,6 +1,6 @@
 {
     "emailConfirmation": {
-        "sender": "plandik275@gmail.com",
+        "sender": "auth@domain.com",
         "subject": "Confirm registration",
         "message": "Confirm registration by clicking on the link: {{.link}}"
     }
