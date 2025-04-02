@@ -1,12 +1,7 @@
 {
-    "test": {
-        "subject": "Test Message",
-        "message": "Hello, It's a test\n <h1>{{.Test1}} \n <h2>{{.Test2}}</h2>",
-        "sender": "plandik275@gmail.com"
-    },
-    "test2": {
-        "subject": "Test Message2",
-        "message": "Hello, It's a test2\n <h1>{{.Test1}} \n <h2>{{.Test2}}</h2>",
-        "sender": "plandik275@gmail.com"
+    "emailConfirmation": {
+        "sender": "plandik275@gmail.com",
+        "subject": "Confirm registration",
+        "message": "Confirm registration by clicking on the link: {{.link}}"
     }
 }

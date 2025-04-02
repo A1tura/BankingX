@@ -2,6 +2,7 @@ package templates
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -42,7 +43,11 @@ func ApplyTemplate(templateName string, args map[string]string) (Template, error
 
 	res := Template{}
 
-	template := templates[templateName]
+	template, exist := templates[templateName]
+    if !exist {
+        return res, errors.New("Template with that name do not exist")
+    }
+
     msg := template.Message
 
     for key, value := range args {
