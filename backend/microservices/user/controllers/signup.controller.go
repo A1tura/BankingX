@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	"middlewares"
 	"net/http"
 	"os"
@@ -46,6 +47,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		if emailInUse && err == nil {
 			errors.NewError("Email already in use")
 		} else if err != nil {
+            log.Println(err)
 			errors.ThrowInternalError()
 			return
 		}
@@ -59,6 +61,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		if usernameInUse && err == nil {
 			errors.NewError("Username already in use")
 		} else if err != nil {
+            log.Println(err)
 			errors.ThrowInternalError()
 			return
 		}
@@ -72,23 +75,27 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 
 			passwordHash, err := utils.HashPassword(body.Password)
 			if err != nil {
+                log.Println(err)
 				errors.ThrowInternalError()
 				return
 			}
 
 			id, err := dal.CreateUser(services.DB, body.Username, passwordHash, body.Email)
 			if err != nil {
+                log.Println(err)
 				errors.ThrowInternalError()
 				return
 			}
 
 			emailVerificationToken := utils.GenerateEmailVerificationToken(body.Email)
 			if err := dal.CreateEmailVerificationToken(services.DB, id, emailVerificationToken); err != nil {
+                log.Println(err)
 				errors.ThrowInternalError()
 				return
 			}
 
 			if err := mql.SendEmailConfirmationEmail(services.Rabbitmq, os.Getenv("DOMAIN")+"/" + "/emailConfirmation?token=" +emailVerificationToken, body.Email); err != nil {
+                log.Println(err)
 				errors.ThrowInternalError()
 				return
 			}
@@ -102,6 +109,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 			signedToken, err := token.SignedString(key)
 
 			if err != nil {
+                log.Println(err)
 				errors.ThrowInternalError()
 				return
 			}
