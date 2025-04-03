@@ -76,6 +76,16 @@ services:
     env_file:
       - ./backend/microservices/user/.env.docker
 
+  nginx:
+    container_name: load_balancer
+    build: ./nginx
+    networks:
+      - bank
+    depends_on:
+      - users
+    ports:
+      - "8080:80"
+
 networks:
   bank:
     driver: bridge
