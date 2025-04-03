@@ -16,7 +16,7 @@ import (
 func main() {
 	godotenv.Load()
 
-	con := db.Connect("admin", "admin", "bank")
+	con := db.Connect(os.Getenv("DB_USERNAME"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_DATABASE"), os.Getenv("DB_HOST"))
 	rabbitmq, err := amqp.Dial(os.Getenv("RABBITMQ"))
 	if err != nil {
 		log.Fatalf("Error while connecting to rabbitmq: ", err)
