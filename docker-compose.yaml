@@ -10,6 +10,13 @@ services:
       - "5432:5432"
     networks:
       - bank
+    healthcheck:
+      test: ["CMD", "pg_isready", "--host", "localhost", "--port", "5432"]
+      retries: 5
+      interval: 10s
+      start_period: 30s
+      timeout: 5s
+
 
   rabbitmq:
     container_name: rabbitmq
@@ -21,6 +28,53 @@ services:
       - "5672:5672"
     networks:
       - bank
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+
+  rabbitmq-starter:
+    container_name: rabbitmq-starter
+    build:
+      context: "./backend/microservices/rabbitmq"
+    networks:
+      - bank
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    env_file:
+      - ./backend/microservices/rabbitmq/.env.docker
+
+  email:
+    container_name: email-microservice
+    build:
+      context: "./backend/microservices/email"
+    networks:
+      - bank
+    depends_on:
+      - db
+      - rabbitmq
+      - rabbitmq-starter
+    env_file:
+      - ./backend/microservices/email/.env.docker
+
+  users:
+    container_name: user-microservice
+    build:
+      context: "./backend/microservices/"
+      dockerfile: "./user/Dockerfile"
+    networks:
+      - bank
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/microservices/user/.env.docker
 
 networks:
   bank:
