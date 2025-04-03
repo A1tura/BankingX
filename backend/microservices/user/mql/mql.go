@@ -37,7 +37,7 @@ func SendEmailConfirmationEmail(rabbitmq *amqp.Connection, link, to string) erro
 
 	q, err := channel.QueueDeclare(
 		"email",
-		false,
+        true,
 		false,
 		false,
 		false,
