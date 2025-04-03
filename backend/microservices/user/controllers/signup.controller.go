@@ -94,7 +94,7 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			if err := mql.SendEmailConfirmationEmail(services.Rabbitmq, os.Getenv("DOMAIN")+"/" + "/emailConfirmation?token=" +emailVerificationToken, body.Email); err != nil {
+			if err := mql.SendEmailConfirmationEmail(services.Rabbitmq, os.Getenv("DOMAIN")+"/auth/" + "emailConfirmation?token=" +emailVerificationToken, body.Email); err != nil {
                 log.Println(err)
 				errors.ThrowInternalError()
 				return
