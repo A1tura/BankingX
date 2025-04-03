@@ -56,7 +56,6 @@ services:
       - bank
     depends_on:
       - db
-      - rabbitmq
       - rabbitmq-starter
     env_file:
       - ./backend/microservices/email/.env.docker
@@ -75,6 +74,8 @@ services:
         condition: service_healthy
     env_file:
       - ./backend/microservices/user/.env.docker
+    environment:
+      - PORT=8080
 
   nginx:
     container_name: load_balancer
