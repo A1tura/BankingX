@@ -11,8 +11,8 @@ type DB struct {
 	*sql.DB
 }
 
-func Connect(user, password, db string) *DB {
-	con, err := sql.Open("postgres", "user="+user+" password="+password+" dbname="+db+" port=5432 sslmode=disable")
+func Connect(user, password, db, host string) *DB {
+	con, err := sql.Open("postgres", "host=" + host + " user="+user+" password="+password+" dbname="+db+" port=5432 sslmode=disable")
 	if err != nil {
 		fmt.Errorf("Error while connecting to DB: ", err.Error())
 	}
