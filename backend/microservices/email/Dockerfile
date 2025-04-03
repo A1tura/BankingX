@@ -14,6 +14,8 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /root/
 
 COPY --from=builder /app/email-service .
+RUN mkdir templates
+COPY --from=builder /app/templates/templates.json /root/templates/
 
 CMD ["./email-service"]
 
