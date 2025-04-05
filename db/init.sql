@@ -19,7 +19,7 @@ CREATE TABLE kyc (
 
     phone_number TEXT NOT NULL,
 
-    id_number INT NOT NULL,
+    id_number TEXT NOT NULL,
     id_front TEXT NOT NULL,
     id_back TEXT NOT NULL,
     selfie TEXT NOT NULL,
