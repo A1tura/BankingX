@@ -63,8 +63,8 @@ services:
   users:
     container_name: user-microservice
     build:
-      context: "./backend/microservices/"
-      dockerfile: "./user/Dockerfile"
+      context: "./backend/"
+      dockerfile: "./microservices/user/Dockerfile"
     networks:
       - bank
     depends_on:
