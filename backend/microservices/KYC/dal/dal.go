@@ -42,3 +42,14 @@ func CreateKYC(db *db.DB, userId int, firstName, middleName, lastName string, da
 
 	return nil
 }
+
+func KYCStatus(db *db.DB, userId int) (string, error) {
+	var status string
+	row := db.QueryRow("SELECT status FROM kyc WHERE user_id=$1", userId)
+
+    if err := row.Scan(&status); err != nil {
+        return "", err
+    }
+
+	return status, nil
+}
