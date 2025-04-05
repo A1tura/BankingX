@@ -25,6 +25,7 @@ func main() {
 
 	http.Handle("/test", middleware(http.HandlerFunc(controllers.Test)))
 	http.Handle("/", middleware(http.HandlerFunc(controllers.KYC)))
+    http.Handle("/status", middleware(http.HandlerFunc(controllers.Status)))
 
 	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }
