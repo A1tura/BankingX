@@ -9,20 +9,31 @@ CREATE TABLE users (
 
 CREATE TABLE kyc (
     id SERIAL PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id SERIAL REFERENCES users(id),
 
     first_name TEXT NOT NULL,
+    middle_name TEXT NOT NULL,
     last_name TEXT NOT NULL,
 
     date_of_birth DATE NOT NULL,
 
+    phone_number TEXT NOT NULL,
+
     id_number INT NOT NULL,
-    id_document TEXT NOT NULL,
+    id_front TEXT NOT NULL,
+    id_back TEXT NOT NULL,
+    selfie TEXT NOT NULL,
 
     country TEXT NOT NULL,
     state TEXT NOT NULL,
     city TEXT NOT NULL,
 
+    address TEXT NOT NULL,
+    postal_code TEXT NOT NULL,
+
     status TEXT CHECK (status IN ('pending', 'verified', 'rejected')) DEFAULT 'pending',
+
+    created_at TIMESTAMP DEFAULT now(),
     verified_at TIMESTAMP
 );
 
