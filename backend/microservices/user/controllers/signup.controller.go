@@ -11,7 +11,7 @@ import (
 	"github.com/golang-jwt/jwt"
 
 	"user/dal"
-	"user/error"
+	"error"
 	"user/mql"
 	"user/types"
 	"user/utils"

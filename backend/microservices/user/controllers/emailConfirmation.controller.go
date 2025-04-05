@@ -5,7 +5,7 @@ import (
 	"middlewares"
 	"net/http"
 	"user/dal"
-	"user/error"
+	"error"
 )
 
 func EmailConfirmation(w http.ResponseWriter, r *http.Request) {

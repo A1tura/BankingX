@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 	"user/dal"
-	"user/error"
+	"error"
 	"user/types"
 	"user/utils"
 
