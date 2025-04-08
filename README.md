@@ -30,7 +30,7 @@
 ## Current Development (In Progress):
 - ### **Microservices**:
     - **Auth**: User authentication service using JWT **(Progress: 70%)**
-    - **KYC/AML**: Know Your Customer and Anti-Money Laundering compliance checks. **(Progress: 0%)**
+    - **KYC/AML**: Know Your Customer and Anti-Money Laundering compliance checks. **(Progress: 40%)**
     - **Account Management**: Multi-currency accounts and balance management. **(Progress: 0%)**
     - **Transaction Service**: Real-time processing of deposits, withdrawals, and transfers. **(Progress: 0%)**
      - **Fraud Detection**: Machine learning models to detect and block fraudulent transactions in real-time. **(Progress: 0%)**
