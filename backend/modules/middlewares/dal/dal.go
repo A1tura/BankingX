@@ -1,6 +1,9 @@
 package dal
 
-import "db"
+import (
+	"database/sql"
+	"db"
+)
 
 func EmailConfirmed(db *db.DB, userId int) (bool, error) {
 	var confirmed bool
@@ -19,6 +22,9 @@ func KYCStatus(db *db.DB, userId int) (string, error) {
 	row := db.QueryRow("SELECT status FROM kyc WHERE user_id=$1", userId)
 
 	if err := row.Scan(&status); err != nil {
+		if err == sql.ErrNoRows {
+			return "NE", nil
+		}
 		return "", err
 	}
 
