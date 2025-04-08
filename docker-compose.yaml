@@ -77,6 +77,23 @@ services:
     environment:
       - PORT=8080
 
+  kyc:
+    container_name: kyc-microservice
+    build:
+      context: "./backend/"
+      dockerfile: "./microservices/KYC/Dockerfile"
+    networks:
+      - bank
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/microservices/KYC/.env.docker
+    environment:
+      - PORT=8081
+
   nginx:
     container_name: load_balancer
     build: ./nginx
@@ -84,6 +101,7 @@ services:
       - bank
     depends_on:
       - users
+      - kyc
     ports:
       - "8080:80"
 
