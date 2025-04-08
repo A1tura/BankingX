@@ -3,7 +3,7 @@ package middlewares
 import (
 	"context"
 	"db"
-	"fmt"
+	"middlewares/dal"
 	"net/http"
 	"os"
 	"strings"
@@ -18,8 +18,10 @@ type Services struct {
 }
 
 type AuthInfo struct {
-	IsAuth bool
-	UserId int
+	IsAuth         bool
+	UserId         int
+	EmailConfirmed *bool
+	KYCStatus      *string
 }
 
 func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler) http.Handler {
@@ -28,8 +30,10 @@ func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler)
 			ctx := context.WithValue(r.Context(), "db", db)
 			ctx = context.WithValue(ctx, "rabbitmq", rabbitmq)
 			ctx = context.WithValue(ctx, "authInfo", &AuthInfo{
-				IsAuth: false,
-				UserId: 0,
+				IsAuth:         false,
+				UserId:         0,
+				EmailConfirmed: nil,
+				KYCStatus:      nil,
 			})
 
 			authHeader := strings.Split(r.Header.Get("Authorization"), " ")
@@ -61,11 +65,24 @@ func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler)
 						IsAuth: true,
 						UserId: int(userId),
 					}
+
+					emailConfirmed, err := dal.EmailConfirmed(db, int(userId))
+					if err != nil {
+						authInfo.EmailConfirmed = nil
+					} else {
+						authInfo.EmailConfirmed = &emailConfirmed
+					}
+
+					KYCStatus, err := dal.KYCStatus(db, int(userId))
+					if err != nil {
+						authInfo.KYCStatus = nil
+					} else {
+						authInfo.KYCStatus = &KYCStatus
+					}
+
 					ctx = context.WithValue(ctx, "authInfo", &authInfo)
 				}
 			}
-
-			fmt.Println(authHeader)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
