@@ -35,6 +35,20 @@ services:
       start_period: 10s
       timeout: 10s
 
+  minio:
+    container_name: minio
+    image: minio/minio:latest
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=adminadmin
+    volumes:
+      - ./data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - bank
+    ports:
+      - "9000:9000"
+      - "9001:9001"
 
   rabbitmq-starter:
     container_name: rabbitmq-starter
@@ -93,6 +107,22 @@ services:
       - ./backend/microservices/KYC/.env.docker
     environment:
       - PORT=8081
+  storage:
+    container_name: storage-microservice
+    build:
+      context: "./backend/"
+      dockerfile: "./microservices/storage/Dockerfile"
+    networks:
+      - bank
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    env_file:
+      - ./backend/microservices/storage/.env.docker
+    environment:
+      - PORT=8082
 
   nginx:
     container_name: load_balancer
@@ -103,7 +133,7 @@ services:
       - users
       - kyc
     ports:
-      - "8080:80"
+      - "80:80"
 
 networks:
   bank:
