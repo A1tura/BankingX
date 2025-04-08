@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"db"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -26,60 +27,65 @@ func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler)
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := context.WithValue(r.Context(), "db", db)
 			ctx = context.WithValue(ctx, "rabbitmq", rabbitmq)
+			ctx = context.WithValue(ctx, "authInfo", &AuthInfo{
+				IsAuth: false,
+				UserId: 0,
+			})
 
 			authHeader := strings.Split(r.Header.Get("Authorization"), " ")
 
-			if authHeader[0] == "Bearer" {
-				token, err := jwt.Parse(authHeader[1], func(token *jwt.Token) (interface{}, error) {
-					return []byte(os.Getenv("JWT_SECRET")), nil
-				})
+			if len(authHeader) == 2 {
+				if authHeader[0] == "Bearer" {
+					token, err := jwt.Parse(authHeader[1], func(token *jwt.Token) (interface{}, error) {
+						return []byte(os.Getenv("JWT_SECRET")), nil
+					})
 
-				if err != nil {
-					ctx = context.WithValue(ctx, "isAuth", false)
-					next.ServeHTTP(w, r.WithContext(ctx))
-					return
+					if err != nil {
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
+
+					if !token.Valid {
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
+
+					claims, ok := token.Claims.(jwt.MapClaims)
+					if !ok {
+						next.ServeHTTP(w, r.WithContext(ctx))
+						return
+					}
+					userId := claims["userId"].(float64)
+
+					authInfo := AuthInfo{
+						IsAuth: true,
+						UserId: int(userId),
+					}
+					ctx = context.WithValue(ctx, "authInfo", &authInfo)
 				}
-
-				if !token.Valid {
-					ctx = context.WithValue(ctx, "isAuth", false)
-					next.ServeHTTP(w, r.WithContext(ctx))
-					return
-				}
-
-				claims, ok := token.Claims.(jwt.MapClaims)
-				if !ok {
-					ctx = context.WithValue(ctx, "isAuth", false)
-					next.ServeHTTP(w, r.WithContext(ctx))
-					return
-				}
-				userId := claims["userId"].(float64)
-
-				ctx = context.WithValue(ctx, "isAuth", true)
-				ctx = context.WithValue(ctx, "userId", int(userId))
 			}
+
+			fmt.Println(authHeader)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
+func AddMiddleware(f func(next http.Handler) http.Handler, name string, value any) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return f(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := context.WithValue(r.Context(), name, value)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		}))
+	}
+}
+
 func GetAuth(ctx context.Context) *AuthInfo {
-	isAuthValue := ctx.Value("isAuth")
-	userIdValue := ctx.Value("userId")
+	authInfo := ctx.Value("authInfo").(*AuthInfo)
 
-	if isAuthValue == nil || userIdValue == nil {
-		return &AuthInfo{IsAuth: false, UserId: 0}
-	}
-
-    isAuth := isAuthValue.(bool)
-    userId := userIdValue.(int)
-
-	authInfo := AuthInfo{
-		IsAuth: isAuth,
-		UserId: userId,
-	}
-
-	return &authInfo
+	return authInfo
 }
 
 func GetContext(ctx context.Context) *Services {
