@@ -58,4 +58,14 @@ CREATE TABLE email_tokens (
     created_at TIMESTAMP DEFAULT now()
 );
 
+CREATE TABLE KYC_documents (
+    id SERIAL PRIMARY KEY,
+    user_id SERIAL REFERENCES users(id),
+
+    path TEXT UNIQUE,
+
+    type TEXT CHECK (type IN ('id_front', 'id_back', 'selfie')),
+    created_at TIMESTAMP DEFAULT now()
+);
+
 INSERT INTO users (username, email, password_hash) VALUES ('test', 'test@test.com', 'test');
