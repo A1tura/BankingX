@@ -45,6 +45,18 @@ func KYC(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		documentsUploaded, err := dal.DocumentsUploaded(services.DB, authInfo.UserId)
+		if err != nil {
+			errors.ThrowInternalError()
+			return
+		}
+
+		if !documentsUploaded {
+			errors.NewError("You cannot submit your KYC at this time. Please ensure all required documents are uploaded before proceeding.")
+			errors.ThrowError()
+			return
+		}
+
 		var request types.KYCRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -53,7 +65,7 @@ func KYC(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if err := dal.CreateKYC(services.DB, authInfo.UserId, request.FirstName, request.MiddleName, request.LastName, request.DateOfBirth, request.PhoneNumber, request.IdNumber, request.IdFront, request.IdBack, request.Selfie, request.Country, request.State, request.City, request.Address, request.PostalCode); err != nil {
+		if err := dal.CreateKYC(services.DB, authInfo.UserId, request.FirstName, request.MiddleName, request.LastName, request.DateOfBirth, request.PhoneNumber, request.IdNumber, request.Country, request.State, request.City, request.Address, request.PostalCode); err != nil {
 			errors.ThrowInternalError()
 			return
 		}

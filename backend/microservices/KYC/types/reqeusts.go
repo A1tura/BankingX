@@ -11,9 +11,6 @@ type KYCRequest struct {
 	PhoneNumber string `json:"phoneNumber"`
 
 	IdNumber string `json:"idNumber"`
-	IdFront  string `json:"idFront"`
-	IdBack   string `json:"idBack"`
-	Selfie   string `json:"selfie"`
 
 	Country string `json:"country"`
 	State   string `json:"state"`

@@ -20,13 +20,12 @@ func Status(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		emailConfirmed, err := dal.EmailConfirmed(services.DB, authInfo.UserId)
-		if err != nil {
+		if authInfo.EmailConfirmed == nil {
 			errors.ThrowInternalError()
 			return
 		}
 
-		if !emailConfirmed {
+		if !*authInfo.EmailConfirmed {
 			errors.NewError("Your email address is not yet confirmed. Please verify your email before accessing this resource.")
 			errors.ThrowError()
 			return
