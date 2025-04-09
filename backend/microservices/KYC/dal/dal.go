@@ -1,6 +1,7 @@
 package dal
 
 import (
+	"database/sql"
 	"db"
 	"time"
 )
@@ -67,6 +68,9 @@ func KYCStatus(db *db.DB, userId int) (string, error) {
 	row := db.QueryRow("SELECT status FROM kyc WHERE user_id=$1", userId)
 
 	if err := row.Scan(&status); err != nil {
+		if err == sql.ErrNoRows {
+			return "NE", nil
+		}
 		return "", err
 	}
 

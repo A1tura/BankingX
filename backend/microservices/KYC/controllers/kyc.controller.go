@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"error"
-	"fmt"
 	"kyc/dal"
 	"kyc/types"
 	"middlewares"
@@ -74,7 +73,13 @@ func KYC(w http.ResponseWriter, r *http.Request) {
 			errors.ThrowError()
 			return
 		} else {
-			fmt.Fprint(w, "Done")
+			var response types.KYCResponse
+			response.Successfully = true
+
+			if err := json.NewEncoder(w).Encode(response); err != nil {
+				errors.ThrowInternalError()
+				return
+			}
 		}
 	} else {
 		w.WriteHeader(404)
