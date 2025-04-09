@@ -2,11 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
-	"error"
+	customError "error"
 	"fmt"
 	"middlewares"
 	"net/http"
 	storage "storage/Storage"
+	"storage/dal"
 	"storage/types"
 
 	"github.com/minio/minio-go/v7"
@@ -14,8 +15,9 @@ import (
 
 func Document(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPut {
-		errors := error.NewError(true, w)
+		errors := customError.NewError(true, w)
 		authInfo := middlewares.GetAuth(r.Context())
+		services := middlewares.GetContext(r.Context())
 		minioClient := r.Context().Value("minio").(*minio.Client)
 		var req types.Upload
 
@@ -38,6 +40,17 @@ func Document(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if authInfo.KYCStatus == nil {
+			errors.ThrowInternalError()
+			return
+		}
+
+		if *authInfo.KYCStatus != "NE" {
+			errors.NewError("KYC already verified. You cannot resubmit.")
+			errors.ThrowError()
+			return
+		}
+
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			errors.NewError("Invalid request body.")
 			errors.ThrowError()
@@ -45,15 +58,27 @@ func Document(w http.ResponseWriter, r *http.Request) {
 		}
 		defer r.Body.Close()
 
-		if req.Type != "id_front" && req.Type != "id_back" {
+		if req.Type != "id_front" && req.Type != "id_back" && req.Type != "selfie" {
 			errors.NewError("Invalid document type.")
 			errors.ThrowError()
 			return
 		}
 
-		// save file to minio
-		err := storage.UploadDocument(minioClient, req.Type, req.Document, authInfo.UserId)
+		var path string
+		var err error
+
+		if req.Type == "id_front" || req.Type == "id_back" {
+			// save file to minio
+			path, err = storage.UploadDocument(minioClient, req.Type, req.Document, authInfo.UserId)
+		} else {
+			path, err = storage.UploadSelfie(minioClient, req.Document, authInfo.UserId)
+		}
 		if err != nil {
+			errors.ThrowInternalError()
+			return
+		}
+
+		if err := dal.UploadDocumentMetadata(services.DB, authInfo.UserId, req.Type, path); err != nil {
 			errors.ThrowInternalError()
 			return
 		}
