@@ -9,6 +9,7 @@ replace middlewares => ../../modules/middlewares
 replace error => ../../modules/error
 
 require (
+	auth v0.0.0-00010101000000-000000000000
 	db v0.0.0-00010101000000-000000000000
 	error v0.0.0-00010101000000-000000000000
 	github.com/joho/godotenv v1.5.1
@@ -20,3 +21,5 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/lib/pq v1.10.9 // indirect
 )
+
+replace auth => ../../modules/auth

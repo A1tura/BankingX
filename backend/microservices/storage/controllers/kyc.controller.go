@@ -11,6 +11,8 @@ import (
 	"storage/types"
 
 	"github.com/minio/minio-go/v7"
+
+	"auth"
 )
 
 func Document(w http.ResponseWriter, r *http.Request) {
@@ -21,27 +23,11 @@ func Document(w http.ResponseWriter, r *http.Request) {
 		minioClient := r.Context().Value("minio").(*minio.Client)
 		var req types.Upload
 
-		// verify user
-		// TODO: implement email verification logic
-		if !authInfo.IsAuth {
-			errors.NewError("You must be authenticated to access this resource.")
-			errors.ThrowError()
-			return
-		}
-
-		if authInfo.EmailConfirmed == nil {
-			errors.ThrowInternalError()
-			return
-		}
-
-		if !*authInfo.EmailConfirmed {
-			errors.NewError("Your email address is not yet confirmed. Please verify your email before accessing this resource.")
-			errors.ThrowError()
-			return
-		}
-
-		if authInfo.KYCStatus == nil {
-			errors.ThrowInternalError()
+		if ok := auth.VerifyAuthRules(errors, auth.AuthRules{
+			Auth:              true,
+			EmailConfirmation: true,
+			KYCVerified:       false,
+		}, *authInfo); !ok {
 			return
 		}
 

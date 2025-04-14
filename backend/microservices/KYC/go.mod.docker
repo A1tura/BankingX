@@ -3,10 +3,9 @@ module kyc
 go 1.23.4
 
 replace db => ../db
-
 replace middlewares => ../middlewares
-
 replace error => ../error
+replace auth => ../auth
 
 require (
 	db v0.0.0-00010101000000-000000000000
@@ -14,6 +13,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/rabbitmq/amqp091-go v1.10.0
 	middlewares v0.0.0-00010101000000-000000000000
+    auth v0.0.0-00010101000000-000000000000
 )
 
 require (

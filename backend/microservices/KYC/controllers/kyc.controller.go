@@ -7,6 +7,8 @@ import (
 	"kyc/types"
 	"middlewares"
 	"net/http"
+
+	"auth"
 )
 
 func KYC(w http.ResponseWriter, r *http.Request) {
@@ -15,21 +17,11 @@ func KYC(w http.ResponseWriter, r *http.Request) {
 		services := middlewares.GetContext(r.Context())
 		authInfo := middlewares.GetAuth(r.Context())
 
-		if !authInfo.IsAuth {
-			errors.NewError("You must be authenticated to access this resource.")
-			errors.ThrowError()
-			return
-		}
-
-		emailConfirmed, err := dal.EmailConfirmed(services.DB, authInfo.UserId)
-		if err != nil {
-			errors.ThrowInternalError()
-			return
-		}
-
-		if !emailConfirmed {
-			errors.NewError("Your email address is not yet confirmed. Please verify your email before accessing this resource.")
-			errors.ThrowError()
+		if ok := auth.VerifyAuthRules(errors, auth.AuthRules{
+			Auth:              true,
+			EmailConfirmation: true,
+			KYCVerified:       false,
+		}, *authInfo); !ok {
 			return
 		}
 

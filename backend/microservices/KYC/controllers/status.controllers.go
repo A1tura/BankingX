@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"auth"
 	"encoding/json"
 	"error"
 	"kyc/dal"
@@ -15,20 +16,11 @@ func Status(w http.ResponseWriter, r *http.Request) {
 		authInfo := middlewares.GetAuth(r.Context())
 		services := middlewares.GetContext(r.Context())
 
-		if !authInfo.IsAuth {
-			errors.NewError("You must be authenticated to access this resource.")
-			errors.ThrowError()
-			return
-		}
-
-		if authInfo.EmailConfirmed == nil {
-			errors.ThrowInternalError()
-			return
-		}
-
-		if !*authInfo.EmailConfirmed {
-			errors.NewError("Your email address is not yet confirmed. Please verify your email before accessing this resource.")
-			errors.ThrowError()
+		if ok := auth.VerifyAuthRules(errors, auth.AuthRules{
+			Auth:              true,
+			EmailConfirmation: true,
+			KYCVerified:       false,
+		}, *authInfo); !ok {
 			return
 		}
 
