@@ -27,5 +27,12 @@ func main() {
 	http.Handle("/", middleware(http.HandlerFunc(controllers.KYC)))
     http.Handle("/status", middleware(http.HandlerFunc(controllers.Status)))
 
+
+	// Only in DEV ENV
+	if os.Getenv("DEV") == "true" {
+		log.Println("DEV ENV IS SET TO TRUE")
+		http.Handle("/approve", middleware(http.HandlerFunc(controllers.Approve)))
+	}
+
 	http.ListenAndServe(":"+os.Getenv("PORT"), nil)
 }

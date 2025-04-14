@@ -76,3 +76,13 @@ func KYCStatus(db *db.DB, userId int) (string, error) {
 
 	return status, nil
 }
+
+func ApproveKYC(db *db.DB, userId int) error {
+	row := db.QueryRow(`UPDATE kyc SET status='verified' WHERE user_id=$1`, userId)
+
+	if row.Err() != nil {
+		return row.Err()
+	}
+
+	return nil
+}
