@@ -20,9 +20,6 @@ CREATE TABLE kyc (
     phone_number TEXT NOT NULL,
 
     id_number TEXT NOT NULL,
-    id_front TEXT NOT NULL,
-    id_back TEXT NOT NULL,
-    selfie TEXT NOT NULL,
 
     country TEXT NOT NULL,
     state TEXT NOT NULL,
@@ -41,6 +38,9 @@ CREATE TABLE accounts (
     id SERIAL PRIMARY KEY,
     user_id SERIAL REFERENCES users(id),
 
+    is_primary BOOL DEFAULT false,
+    limits JSONB,
+
     account_number TEXT UNIQUE NOT NULL,
     account_type TEXT CHECK (account_type IN ('checking', 'saving', 'buisness')) NOT NULL,
 
@@ -48,6 +48,8 @@ CREATE TABLE accounts (
     currency TEXT CHECK (currency IN ('USD', 'EUR')) NOT NULL,
 
     status TEXT CHECK (status IN ('active', 'frozen', 'closed')) DEFAULT 'active',
+
+    upated_at TIMESTAMP DEFAULT now(),
     created_at TIMESTAMP DEFAULT now()
 );
 
