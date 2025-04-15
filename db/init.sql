@@ -42,7 +42,7 @@ CREATE TABLE accounts (
     limits JSONB,
 
     account_number TEXT UNIQUE NOT NULL,
-    account_type TEXT CHECK (account_type IN ('checking', 'saving', 'buisness')) NOT NULL,
+    account_type TEXT CHECK (account_type IN ('checking', 'saving', 'business')) NOT NULL,
 
     balance DECIMAL(18, 2) DEFAULT 0.00 NOT NULL,
     currency TEXT CHECK (currency IN ('USD', 'EUR')) NOT NULL,
