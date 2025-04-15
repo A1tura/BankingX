@@ -24,6 +24,7 @@ func main() {
 	var ctxMiddleware = middlewares.GetMiddleware(con, rabbitmq)
 
 	http.Handle("/accounts", ctxMiddleware(http.HandlerFunc(controllers.Accounts)))
+	http.Handle("/createAccount", ctxMiddleware(http.HandlerFunc(controllers.CreateAccount)))
 
 	if err := http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
 		log.Fatal(err)

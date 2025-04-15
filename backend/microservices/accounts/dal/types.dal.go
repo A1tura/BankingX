@@ -9,11 +9,11 @@ type AccountLimits struct {
 }
 
 type Account struct {
-	AccountNumber int
+	AccountNumber string
 	AccountType string
 
 	Currency string
-	Balance int
+	Balance float64
 
 	Limits AccountLimits
 	Status string

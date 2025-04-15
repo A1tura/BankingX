@@ -3,6 +3,7 @@ package dal
 import (
 	"database/sql"
 	"db"
+	"encoding/json"
 )
 
 func GetAccounts(db *db.DB, userId int) ([]Account, error) {
@@ -19,12 +20,17 @@ func GetAccounts(db *db.DB, userId int) ([]Account, error) {
 
 	for rows.Next() {
 		var account Account
+		var limits []byte
 
-		if err := rows.Scan(&account.AccountNumber, &account.AccountType, &account.Currency, &account.Balance, &account.Limits, &account.Status, &account.CreatedAt); err != nil {
+		if err := rows.Scan(&account.AccountNumber, &account.AccountType, &account.Currency, &account.Balance, &limits, &account.Status, &account.CreatedAt); err != nil {
 			if err == sql.ErrNoRows {
 				return accounts, nil
 			}
 			return accounts, err
+		}
+
+		if err := json.Unmarshal(limits, &account.Limits); err != nil {
+			return accounts, nil
 		}
 
 		accounts = append(accounts, account)
@@ -49,9 +55,14 @@ func AccountNumberExist(db *db.DB, accountNumber string) (bool, error) {
 }
 
 func CreateAccount(db *db.DB, userId int, accountType, accountNumber, currency string, isPrimary bool, limits AccountLimits) (bool, error) {
-	row := db.QueryRow(`INSERT INTO accounts (user_id, is_primary, limits, account_number, account_type, currency) VALUES ($1, $2, $3, $4, $5, $6)`, userId, isPrimary, limits, accountNumber, accountType, currency)
+	jsonLimits, err := json.Marshal(limits)
+	if err != nil {
+		return false, err
+	}
+
+	row := db.QueryRow(`INSERT INTO accounts (user_id, is_primary, limits, account_number, account_type, currency) VALUES ($1, $2, $3, $4, $5, $6)`, userId, isPrimary, jsonLimits, accountNumber, accountType, currency)
 	if row.Err() != nil {
-		return false, nil
+		return false, row.Err()
 	}
 
 	return true, nil
