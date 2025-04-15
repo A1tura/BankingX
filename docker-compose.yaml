@@ -17,6 +17,17 @@ services:
       start_period: 30s
       timeout: 5s
 
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - '6379:6379'
+    volumes:
+      - /mnt/redis/data:/root/redis
+    environment:
+      - REDIS_PASSWORD=admin
+      - REDIS_USER=admin
+      - REDIS_PORT=6379
 
   rabbitmq:
     container_name: rabbitmq
@@ -125,7 +136,7 @@ services:
       - PORT=8082
 
   nginx:
-    container_name: load_balancer
+    container_name: reverse_proxy
     build: ./nginx
     networks:
       - bank
