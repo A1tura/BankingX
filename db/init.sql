@@ -49,7 +49,7 @@ CREATE TABLE accounts (
 
     status TEXT CHECK (status IN ('active', 'frozen', 'closed')) DEFAULT 'active',
 
-    upated_at TIMESTAMP DEFAULT now(),
+    updated_at TIMESTAMP DEFAULT now(),
     created_at TIMESTAMP DEFAULT now()
 );
 
