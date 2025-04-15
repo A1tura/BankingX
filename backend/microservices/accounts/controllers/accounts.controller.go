@@ -14,6 +14,7 @@ import (
 
 func Accounts(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		w.Header().Add("Content-Type", "application/json")
 		authInfo := middlewares.GetAuth(r.Context())
 		errors := error.NewError(true, w)
 		services := middlewares.GetContext(r.Context())
