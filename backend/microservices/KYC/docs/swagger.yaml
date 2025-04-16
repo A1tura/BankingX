@@ -1,0 +1,134 @@
+openapi: 3.0.0
+info:
+  title: KYC Microservice - BankingX
+  version: 1.0.0
+servers:
+  - url: http://www.bank.com
+tags:
+  - name: KYC
+paths:
+  /KYC/:
+    post:
+      tags:
+        - KYC
+      summary: KYC
+      description: >-
+        ### KYC Endpoint
+
+
+        This endpoint allows you to submit KYC (Know Your Customer) information
+        for verification.
+
+
+        #### Request Body
+
+
+        - `firstName` (string, required): The first name of the individual.
+
+        - `middleName` (string): The middle name of the individual.
+
+        - `lastName` (string, required): The last name of the individual.
+
+        - `phoneNumber` (string, required): The phone number of the individual.
+
+        - `idNumber` (string, required): The identification number of the
+        individual.
+
+        - `country` (string, required): The country of residence of the
+        individual.
+
+        - `state` (string, required): The state of residence of the individual.
+
+        - `city` (string, required): The city of residence of the individual.
+
+        - `address` (string, required): The address of residence of the
+        individual.
+
+        - `postalCode` (string, required): The postal code of the individual's
+        address.
+
+
+        #### Response
+
+
+        The response is in JSON format and includes the following schema:
+
+
+        ``` json
+
+        {
+          "type": "object",
+          "properties": {
+            "isClientError": {
+              "type": "boolean"
+            },
+            "errors": {
+              "type": "array"
+            }
+          }
+        }
+
+         ```
+
+        The response may include the following fields:
+
+
+        - `isClientError` (boolean): Indicates if there is a client error.
+
+        - `errors` (array): An array of errors, if any.
+
+
+        The last execution of this request resulted in a `500` status code and
+        the response content type was `text/plain`.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                firstName: 'John'
+                middleName: ''
+                lastName: 'John'
+                phoneNumber: '+12345678900'
+                idNumber: '0000000'
+                country: 'USA'
+                state: 'California'
+                city: 'Sacramento'
+                address: '1013 Leverton Cove Road'
+                postalCode: '66166'
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer Token
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+
+  /KYC/status:
+    get:
+      tags:
+        - KYC
+      summary: status
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: >-
+            Bearer Token
+      responses:
+        200:
+          description: "KYC status successfully retrieved."
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+                description: "The current status of the KYC verification."
+                enum: ["pending", "verified", "rejected"]
+                example: "pending"
