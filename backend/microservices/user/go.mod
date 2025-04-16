@@ -11,8 +11,13 @@ require (
 	middlewares v0.0.0-00010101000000-000000000000
 )
 
-require github.com/lib/pq v1.10.9 // indirect
+require (
+	github.com/lib/pq v1.10.9 // indirect
+	github.com/rs/cors v1.11.1 // indirect
+)
 
 replace middlewares => ../../modules/middlewares
+
 replace db => ../../modules/db
+
 replace error => ../../modules/error

@@ -9,6 +9,7 @@ import (
 
 	"github.com/joho/godotenv"
 	amqp "github.com/rabbitmq/amqp091-go"
+	"github.com/rs/cors"
 
 	"user/controllers"
 )
@@ -25,9 +26,19 @@ func main() {
 
 	http.Handle("/signup", ctxMiddleware(http.HandlerFunc(controllers.SignUp)))
 	http.Handle("/signin", ctxMiddleware(http.HandlerFunc(controllers.SignIn)))
-    http.Handle("/emailConfirmation", ctxMiddleware(http.HandlerFunc(controllers.EmailConfirmation)))
+	http.Handle("/emailConfirmation", ctxMiddleware(http.HandlerFunc(controllers.EmailConfirmation)))
 
-    if err := http.ListenAndServe(":" + os.Getenv("PORT"), nil); err != nil {
-        log.Fatal(err)
-    }
+	http.HandleFunc("/docs/swagger.yaml", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "docs/swagger.yaml")
+	})
+
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"*"},
+	})
+
+	handler := c.Handler(http.DefaultServeMux)
+
+	if err := http.ListenAndServe(":"+os.Getenv("PORT"), handler); err != nil {
+		log.Fatal(err)
+	}
 }

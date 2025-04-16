@@ -21,6 +21,7 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /root/
 
+COPY --from=builder /app/service/docs ./docs/
 COPY --from=builder /app/service/user-service .
 
 CMD ["./user-service"]
