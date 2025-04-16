@@ -1,0 +1,6 @@
+{
+  "services": [
+    { "url": "http://www.bank.com/auth/docs/swagger.yaml", "name": "Auth Service" },
+    { "url": "http://www.bank.com/KYC/docs/swagger.yaml", "name": "KYC Service" }
+  ]
+}
