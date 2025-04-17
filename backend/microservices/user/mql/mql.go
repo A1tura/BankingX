@@ -6,6 +6,8 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
+
+	"sharedTypes"
 )
 
 type Template struct {
@@ -37,7 +39,7 @@ func SendEmailConfirmationEmail(rabbitmq *amqp.Connection, link, to string) erro
 
 	q, err := channel.QueueDeclare(
 		"email",
-        true,
+		true,
 		false,
 		false,
 		false,
@@ -59,6 +61,55 @@ func SendEmailConfirmationEmail(rabbitmq *amqp.Connection, link, to string) erro
 		amqp.Publishing{
 			ContentType: "application/json",
 			Body:        []byte(res),
+		}); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Send2FSignIn(rabbitmq *amqp.Connection, userId int, email string) error {
+	channel, err := rabbitmq.Channel()
+	if err != nil {
+		return err
+	}
+	defer channel.Close()
+
+	q, err := channel.QueueDeclare(
+		"2fa",
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var res sharedtypes.ActionRequest
+	res.Email = email
+	res.UserId = userId
+	res.ActionId = "auth:"
+	res.Queue = ""
+
+	resBytes, err := json.Marshal(res)
+	if err != nil {
+		return err
+	}
+
+	if err = channel.PublishWithContext(ctx,
+		"",
+		q.Name,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "application/json",
+			Body:        resBytes,
 		}); err != nil {
 		return err
 	}

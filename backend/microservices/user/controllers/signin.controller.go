@@ -1,22 +1,30 @@
 package controllers
 
 import (
+	"context"
 	"encoding/json"
+	"error"
+	"fmt"
+	"log"
 	"middlewares"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 	"user/dal"
-	"error"
+	"user/mql"
 	"user/types"
 	"user/utils"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/redis/go-redis/v9"
 )
 
 func SignIn(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		w.Header().Add("Content-Type", "application/json")
 		services := middlewares.GetContext(r.Context())
+		redis := r.Context().Value("redis").(*redis.Client)
 		errors := error.NewError(true, w)
 
 		var body types.SignInRequest
@@ -62,11 +70,19 @@ func SignIn(w http.ResponseWriter, r *http.Request) {
 		key := []byte(os.Getenv("JWT_SECRET"))
 		signedToken, err := token.SignedString(key)
 
-		var res types.SignInResponse
-		res.Successful = true
+		cmd := redis.Set(context.Background(), strconv.Itoa(userId), signedToken, time.Minute * 10)
+		if cmd.Err() != nil {
+			log.Fatal(cmd.Err())
+		}
 
-		w.Header().Add("Authorization", "Bearer "+signedToken)
-		json.NewEncoder(w).Encode(res)
+		mql.Send2FSignIn(services.Rabbitmq, userId, body.Email)
+
+		//		var res types.SignInResponse
+		//		res.Successful = true
+
+		//		w.Header().Add("Authorization", "Bearer "+signedToken)
+		//		json.NewEncoder(w).Encode(res)
+		fmt.Fprint(w, "2fa req")
 	} else {
 		w.WriteHeader(404)
 	}
