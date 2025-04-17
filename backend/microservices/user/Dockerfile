@@ -8,6 +8,7 @@ RUN mv /app/service/go.mod.docker /app/service/go.mod
 COPY /modules/db /app/db
 COPY /modules/middlewares /app/middlewares
 COPY /modules/error /app/error
+COPY /modules/sharedTypes /app/sharedTypes
 
 WORKDIR /app/service
 
