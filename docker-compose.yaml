@@ -20,6 +20,8 @@ services:
   redis:
     container_name: redis
     image: redis
+    networks:
+      - bank
     ports:
       - '6379:6379'
     volumes:
@@ -94,6 +96,19 @@ services:
     env_file:
       - ./backend/microservices/email/.env.docker
 
+  2fa:
+    container_name: 2fa-microservice
+    build:
+      context: "./backend/"
+      dockerfile: "./microservices/2fa/Dockerfile"
+    networks:
+      - bank
+    depends_on:
+      - redis
+      - rabbitmq-starter
+    env_file:
+      - ./backend/microservices/2fa/.env.docker
+
   users:
     container_name: user-microservice
     build:
@@ -110,6 +125,7 @@ services:
       - ./backend/microservices/user/.env.docker
     environment:
       - PORT=8080
+      - REDIS_ADDRESS=redis:6379
 
   kyc:
     container_name: kyc-microservice
