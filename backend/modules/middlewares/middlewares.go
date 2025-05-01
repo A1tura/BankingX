@@ -3,6 +3,7 @@ package middlewares
 import (
 	"context"
 	"db"
+	customError "error"
 	"middlewares/dal"
 	"net/http"
 	"os"
@@ -27,6 +28,7 @@ type AuthInfo struct {
 func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Add("Content-Type", "application/json")
 			ctx := context.WithValue(r.Context(), "db", db)
 			ctx = context.WithValue(ctx, "rabbitmq", rabbitmq)
 			ctx = context.WithValue(ctx, "authInfo", &AuthInfo{
@@ -37,6 +39,7 @@ func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler)
 			})
 
 			authHeader := strings.Split(r.Header.Get("Authorization"), " ")
+			errors := customError.NewError(true, w)
 
 			if len(authHeader) == 2 {
 				if authHeader[0] == "Bearer" {
@@ -78,6 +81,11 @@ func GetMiddleware(db *db.DB, rabbitmq *amqp.Connection) func(next http.Handler)
 						authInfo.KYCStatus = nil
 					} else {
 						authInfo.KYCStatus = &KYCStatus
+					}
+
+					if errors.ErrorsExist() {
+						errors.ThrowError()
+						return
 					}
 
 					ctx = context.WithValue(ctx, "authInfo", &authInfo)
