@@ -9,3 +9,7 @@ type CreateAccountRequest struct {
 type FrozeAccountRequest struct {
 	AccountNumber string `json:"accountNumber"`
 }
+
+type UnfrozeAccountRequest struct {
+	AccountNumber string `json:"accountNumber"`
+}

@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"db"
 	"encoding/json"
-	"log"
 )
 
 func GetAccounts(db *db.DB, userId int) ([]Account, error) {
@@ -44,7 +43,7 @@ func GetAccount(db *db.DB, accountNumber string) (FullAccount, error) {
 	var account FullAccount
 	var limits []byte
 
-	row := db.QueryRow(`SELECT id, user_id, account_number, account_type, currency, balance, limits, status, created_at, upated_at FROM accounts WHERE account_number=$1`, accountNumber)
+	row := db.QueryRow(`SELECT id, user_id, account_number, account_type, currency, balance, limits, status, created_at, updated_at FROM accounts WHERE account_number=$1`, accountNumber)
 
 	if err := row.Scan(&account.Id, &account.UserId, &account.AccountNumber, &account.AccountType, &account.Currency, &account.Balance, &limits, &account.Status, &account.CreatedAt, &account.UpdatedAt); err != nil {
 		return account, err
@@ -61,7 +60,17 @@ func FrozeAccount(db *db.DB, accountNumber string) error {
 	row := db.QueryRow(`UPDATE accounts SET status='frozen' WHERE account_number=$1`, accountNumber)
 
 	if row.Err() != nil {
-		log.Fatal(row.Err())
+		return row.Err()
+	}
+
+	return nil
+}
+
+func UnfrozeAccount(db *db.DB, accountNumber string) error {
+	row := db.QueryRow(`UPDATE accounts SET status='active' WHERE account_number=$1`, accountNumber)
+
+	if row.Err() != nil {
+		return row.Err()
 	}
 
 	return nil

@@ -26,6 +26,10 @@ func main() {
 	http.Handle("/accounts", ctxMiddleware(http.HandlerFunc(controllers.Accounts)))
 	http.Handle("/createAccount", ctxMiddleware(http.HandlerFunc(controllers.CreateAccount)))
 
+	http.Handle("/frozeAccount", ctxMiddleware(http.HandlerFunc(controllers.FrozeAccount)))
+	http.Handle("/unfrozeAccount", ctxMiddleware(http.HandlerFunc(controllers.UnfrozeAccount)))
+	// 	http.Handle("/closeAccount", ctxMiddleware(http.HandlerFunc(controllers.CloseAccount)))
+
 	if err := http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
 		log.Fatal(err)
 	}

@@ -7,12 +7,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"error"
-	"log"
 	"middlewares"
 	"net/http"
 )
 
-func FrozeAccount(w http.ResponseWriter, r *http.Request) {
+func UnfrozeAccount(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		authInfo := middlewares.GetAuth(r.Context())
 		services := middlewares.GetContext(r.Context())
@@ -27,7 +26,7 @@ func FrozeAccount(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		var request types.FrozeAccountRequest
+		var request types.UnfrozeAccountRequest
 
 		if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 			errors.NewError("Invalid request")
@@ -56,23 +55,24 @@ func FrozeAccount(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if accountInfo.Status == "frozen" {
-			errors.NewError("Account is already frozen.")
+		if accountInfo.Status != "frozen" {
+			errors.NewError("Account is not frozen")
 			errors.ThrowError()
 			return
 		}
 
-		if err := dal.FrozeAccount(services.DB, accountInfo.AccountNumber); err != nil {
-			log.Fatal(err)
+		err = dal.UnfrozeAccount(services.DB, accountInfo.AccountNumber)
+		if err != nil {
+			errors.ThrowInternalError()
 		}
 
-		var res types.FrozeAccountResponse
+		var res types.UnfrozeAccountResponse
 		res.Successfully = true
 
 		if err := json.NewEncoder(w).Encode(res); err != nil {
 			errors.ThrowInternalError()
 		}
-
+		return
 	} else {
 		w.WriteHeader(404)
 		return
