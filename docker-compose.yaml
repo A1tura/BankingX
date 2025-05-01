@@ -108,6 +108,8 @@ services:
       - rabbitmq-starter
     env_file:
       - ./backend/microservices/2fa/.env.docker
+    environment:
+      - PORT=8080
 
   users:
     container_name: user-microservice
